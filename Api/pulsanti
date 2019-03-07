@@ -1,0 +1,93 @@
+bottone = {
+  x=1,
+  y=1,
+  larghezza=1,
+  altezza=1,
+  colore=colors.red,
+  coloreTesto=colors.white,
+  testo="",
+  attivo=true,
+  primoPiano=true,
+  display = term.native()
+}
+
+bottoni = {}
+debugInterface = peripheral.wrap("top")
+
+
+function bottone.__init__(baseClass,x,y,larghezza,altezza,colore,coloreTesto)
+  self = {x=x, y=y, larghezza=larghezza, altezza=altezza, colore=colore, coloreTesto=coloreTesto, display=term.native(), attivo=true}
+  setmetatable(self, {__index=bottone})
+  table.insert(bottoni, self)
+  return self
+end
+
+setmetatable(bottone, {__call=bottone.__init__})
+
+function bottone:set(arg, value)
+  if arg == "x" then self.x = value end
+  if arg == "y" then self.y = value end
+  if arg == "l" then self.larghezza = value end
+  if arg == "a" then self.altezza = value end
+  if arg == "c" then self.colore = value end
+  if arg == "ct" then self.coloreTesto = value end
+  if arg == "t" then self.testo = value end
+  if arg == "tf" then self.attivo = value end
+end
+
+function bottone:draw()
+  local coloreAtt = self.display.getBackgroundColor()
+  local coloreTAtt = self.display.getTextColor()
+  local old = term.redirect(self.display)
+  term.setBackgroundColor(self.colore)
+  term.setTextColor(self.coloreTesto)
+  paintutils.drawFilledBox(self.x, self.y, self.x+self.larghezza-1, self.y+self.altezza-1,self.colore)
+  term.setCursorPos(self.x, self.y+1)
+  term.write(self.testo)
+  term.setTextColor(coloreTAtt)
+  term.setBackgroundColor(coloreAtt)
+  term.redirect(old)
+end
+
+function bottone.repr()
+  return self.x, self.y, self.testo, self.attivo
+end
+
+function tableWrite()
+  print(#bottoni)
+end
+
+
+function agisci(event)
+  flag = true
+  event, button, x, y = os.pullEvent()
+  if event == "mouse_click" then
+    debugInterface.clear()
+    debugInterface.setCursorPos(1,1)
+    debugInterface.write("Puntatore(")
+    debugInterface.write(x)
+    debugInterface.write(y)
+    for i=1, #bottoni do
+      b = bottoni[i]
+      valore = i+1
+      debugInterface.setCursorPos(1,valore)
+      debugInterface.write(") Dimensioni[")
+      debugInterface.write(b.x)
+      debugInterface.write(b.x+b.larghezza)
+      debugInterface.write(b.y)
+      debugInterface.write(b.altezza+b.y)
+      debugInterface.write("], ")
+      debugInterface.write(b.a)
+      if b.attivo and x>=b.x and x<=b.x+b.larghezza-1 and y >= b.y and y <= b.y+b.altezza-1 then
+        debugInterface.clear()
+        debugInterface.setCursorPos(1,1)
+        debugInterface.write(b.testo)
+        flag = false
+        return b.testo
+      end
+    end
+  end
+  if flag then
+    os.queueEvent(event, button, x, y)
+  end
+end
