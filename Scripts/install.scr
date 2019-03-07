@@ -1,0 +1,92 @@
+function screenReset()
+  term.clear()
+  term.setCursorPos(1,1)
+  paintutils.drawImage(paintutils.loadImage(shell.resolve("../Backgrounds/install.bkg")), 1, 1)
+  term.setBackgroundColor(colors.blue)
+  term.setTextColor(colors.white)
+end
+a = true
+username = ""
+password = ""
+function Prosegui()
+  a = false
+end
+
+function Annulla()
+  screenReset()
+  stringa.writeInside(20,3, "E' stato scelto di terminare@la procedura.@Arrivederci!")
+  sleep(1)
+  term.clear()
+  term.setCursorPos(1,1)
+  term.setBackgroundColor(colors.black)
+  term.setTextColor(colors.white)
+  os.shutdown()
+end
+
+function pagina2()
+  a = true
+  screenReset()
+  y2 = stringa.writeInside(20,3, "Molto bene, "..username..",l'installer sta copiando i file...@Attendere, prego.")
+  sleep(10)
+end
+
+function pagina1()
+  a = true
+  screenReset()
+  y2 = stringa.writeInside(20,3, "Per proseguire, e' necessario@immettere alcune informazioni.@Una volta terminata l'operazione, cliccare su Procedi.")
+  stringa.writeInside(21, y2+1, "Username ")
+  textbox1 = caselle.textbox(30, y2+1, 12, colors.gray, colors.black)
+  textbox1:draw()
+  stringa.writeInside(21,y2+3, "Password ")
+  textbox2 = caselle.textbox(30, y2+3, 12, colors.gray, colors.black)
+  textbox2.hidden = true
+  textbox2:draw()
+  bottone1 = pulsanti.bottone(24,14,8,3,colors.green,colors.white)
+  bottone1:set("t", "Prosegui")
+  bottone1:draw()
+  stringa.writeInside(21, 11, "L'username non puo' essere lasciato vuoto.")
+  while a do
+    event, button, x, y = os.pullEvent()
+    evento = {event, button, x, y}
+    testo = caselle.agisci(evento)
+    funzione = pulsanti.agisci(evento)
+    if funzione ~= "" then
+      if funzione == "Prosegui" then
+        username = textbox1.contenuto
+        if username ~= "" then
+          username = textbox1.contenuto
+          pagina2()
+        end
+      end
+    end
+  end
+end
+
+
+function intro()
+  screenReset()
+  y2 = stringa.writeInside(20,3, "Benvenuto nel programma di installazione di RoyalStarOS.@@Selezionare una delle opzioni @per proseguire.")
+  bottone1 = pulsanti.bottone(24,14,8,3,colors.green,colors.white)
+  bottone1:set("t", "Prosegui")
+  bottone1:draw()
+  bottone2 = pulsanti.bottone(33,14,8,3,colors.red,colors.white)
+  bottone2:set("t", "Annulla")
+  bottone2:draw()
+  stringa.writeInside(21, y2, "Nel caso si desideri proseguirecon l'installazione, clicca su Prosegui.@Nel caso si voglia annullare l'operazione, clicca su Annulla.")
+  while a do
+    funzione = pulsanti.agisci(os.pullEvent())
+    getfenv()[funzione]()
+  end
+  if funzione == "Prosegui" then
+      pagina1()
+  end
+end
+
+print("Attendere. Caricamento dei moduli...")
+os.loadAPI(shell.resolve("../Api/pulsanti"))
+print("Modulo Bottoni caricato.")
+os.loadAPI(shell.resolve("../Api/stringa"))
+print("Modulo Wrapping caricato.")
+os.loadAPI(shell.resolve("../Api/caselle"))
+print("Modulo Caselle caricato.")
+intro()

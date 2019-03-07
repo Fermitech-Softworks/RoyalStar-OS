@@ -1,0 +1,53 @@
+etichetta = {
+  x=1,
+  y=1,
+  colore=colors.red,
+  coloreTesto=colors.white,
+  testo="",
+  elementi={},
+  primoPiano=false,
+  display = term.native(),
+  hidden=false
+}
+
+etichette = {}
+debugInterface = peripheral.wrap("top")
+
+function etichetta.__init__(baseClass,x,y,colore,coloreTesto, testo)
+  self = {x=x, y=y, colore=colore, coloreTesto=coloreTesto, display=term.native(), primoPiano=true, testo=testo}
+  setmetatable(self, {__index=etichetta})
+  table.insert(etichette, self)
+  return self
+end
+
+setmetatable(etichetta, {__call=etichetta.__init__})
+
+function etichetta:set(arg, value)
+  if arg == "x" then self.x = value end
+  if arg == "y" then self.y = value end
+  if arg == "c" then self.colore = value end
+  if arg == "ct" then self.coloreTesto = value end
+  if arg == "pp" then self.primoPiano = value end
+  if arg == "t" then self.testo = value end
+end
+
+function etichetta:draw()
+  local coloreAtt = self.display.getBackgroundColor()
+  local coloreTAtt = self.display.getTextColor()
+  local old = term.redirect(self.display)
+  term.setBackgroundColor(self.colore)
+  term.setTextColor(self.coloreTesto)
+  term.setCursorPos(self.x, self.y)
+  term.write(self.testo)
+  term.setTextColor(coloreTAtt)
+  term.setBackgroundColor(coloreAtt)
+  term.redirect(old)
+end
+
+function etichetta.repr()
+  print("Ciao")
+end
+
+function agisci()
+  a=1
+end
